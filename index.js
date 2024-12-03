@@ -1,6 +1,5 @@
-import express from "express";
-import { connectDB } from './db/db.js'
-import { httpServer } from "./app.js"
+import { connectDB } from './src/db/db.js'
+import { httpServer } from "./src/app.js"
 
 connectDB().then(
     () => {
