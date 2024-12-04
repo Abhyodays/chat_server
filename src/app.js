@@ -24,12 +24,16 @@ io.on('connection', (socket) => {
     socket.on('init room', (data) => { console.log('data => ', data) })
     socket.on("register", (data) => {
         users[data.email] = socket.id;
-        console.log(users)
+    })
+    socket.on("send message", (data) => {
+        const { to, from, message } = data;
+        socket.emit("message received", { message })
     })
     socket.on("disconnected:", () => {
         console.log("user disconnected:", socket.id)
         socket.disconnect();
     })
+
 });
 
 
