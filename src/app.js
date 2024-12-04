@@ -27,7 +27,11 @@ io.on('connection', (socket) => {
     })
     socket.on("send message", (data) => {
         const { to, from, message } = data;
-        socket.to(users[to]).emit("message received", { sender: from, receiver: to, message: message })
+        if (users[to]) {
+            socket.to(users[to]).emit("message received", { sender: from, receiver: to, message: message })
+        } else {
+            socket.emit("error", { message: "Receiver not connected" })
+        }
     })
     socket.on("disconnected:", () => {
         console.log("user disconnected:", socket.id)
