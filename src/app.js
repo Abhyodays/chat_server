@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
     })
     socket.on("send message", (data) => {
         const { to, from, message } = data;
-        socket.emit("message received", { message })
+        socket.to(users[to]).emit("message received", { sender: from, receiver: to, message: message })
     })
     socket.on("disconnected:", () => {
         console.log("user disconnected:", socket.id)
