@@ -26,9 +26,9 @@ io.on('connection', (socket) => {
         users[data.email] = socket.id;
     })
     socket.on("send message", (data) => {
-        const { to, from, message } = data;
-        if (users[to]) {
-            socket.to(users[to]).emit("message received", { sender: from, receiver: to, message: message })
+        const { receiver } = data;
+        if (users[receiver]) {
+            socket.to(users[receiver]).emit("message received", data)
         } else {
             socket.emit("error", { message: "Receiver not connected" })
         }
