@@ -171,10 +171,27 @@ const getUsers = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 })
+
+const getUserDetails = asyncHandler(async (req, res) => {
+    const { id } = req.query;
+
+    try {
+        const user = await User.findOne({ email: id }).select("-password -refreshToken -_id")
+        if (user === null) {
+            throw new ApiError(404, "User not found");
+        }
+        res.status(200).json(
+            new ApiResponse(200, user)
+        )
+    } catch (error) {
+        throw new ApiError(404, "User not found")
+    }
+})
 export {
     registerUser,
     loginUser,
     logoutUser,
     refreshAccessToken,
-    getUsers
+    getUsers,
+    getUserDetails
 }
