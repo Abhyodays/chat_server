@@ -154,12 +154,23 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const getUsers = asyncHandler(async (req, res) => {
     const { id } = req.query
+    id = id.trim();
     try {
         const users = await User.find({
-            username: {
-                $regex: id,
-                $options: 'i'
-            }
+            $or: [
+                {
+                    username: {
+                        $regex: id,
+                        $options: 'i'
+                    }
+                },
+                {
+                    email: {
+                        $regex: id,
+                        $options: 'i'
+                    }
+                }
+            ]
         }).select("-password -refreshToken -_id")
         if (users.length === 0) {
             throw new ApiError(404, "User not found")
@@ -174,7 +185,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
 const getUserDetails = asyncHandler(async (req, res) => {
     const { id } = req.query;
-
+    id = id.trim();
     try {
         const user = await User.findOne({ email: id }).select("-password -refreshToken -_id")
         if (user === null) {
