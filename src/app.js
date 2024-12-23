@@ -19,23 +19,31 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: process.env.CORS_ORIGIN
 });
-const users = {};
+const users = new Map();
 io.on('connection', (socket) => {
     socket.on('init room', (data) => { console.log('data => ', data) })
     socket.on("register", (data) => {
-        users[data.email] = socket.id;
+        users.set(data.email, socket.id);
     })
     socket.on("send message", (data) => {
         const { receiver } = data;
-        if (users[receiver]) {
-            socket.to(users[receiver]).emit("message received", data)
+        if (users.has(receiver)) {
+            socket.to(users.get(receiver)).emit("message received", data)
         } else {
             socket.emit("error", { message: "Receiver not connected" })
         }
     })
-    socket.on("disconnected:", () => {
-        console.log("user disconnected:", socket.id)
-        socket.disconnect();
+    socket.on("disconnecting", () => {
+        // find email by socket id
+        let email = null;
+        for (const [userId, socketId] of users) {
+            if (socketId === socket.id) email = userId;
+        }
+        try {
+            users.delete(email)
+        } catch (error) {
+            console.log("Error :: user disconnect:", error);
+        }
     })
 
 });
