@@ -22,16 +22,26 @@ const io = new Server(httpServer, {
 const users = new Map();
 io.on('connection', (socket) => {
     socket.on('init room', (data) => { console.log('data => ', data) })
-    socket.on("register", (data) => {
+    socket.on("register", async (data) => {
         users.set(data.email, socket.id);
+        const allMessages = await getAllMessageOfUser(data.email);
+        if (users.has(data.email)) {
+            allMessages.forEach(m => {
+                io.to(users.get(m.receiver)).emit("message received", m)
+            })
+        }
     })
     socket.on("send message", (data) => {
         const { receiver } = data;
         if (users.has(receiver)) {
             socket.to(users.get(receiver)).emit("message received", data)
         } else {
+            addMessage({ ...data, status: "sent" });
             socket.emit("error", { message: "Receiver not connected" })
         }
+    });
+    socket.on(MESSAGE_RECEIVED, (data) => {
+        removeMessage(data);
     })
     socket.on("disconnecting", () => {
         // find email by socket id
@@ -55,6 +65,8 @@ app.get('', (req, res) => {
 
 //routes imports
 import userRouter from './routers/user.routes.js';
+import { addMessage, getAllMessageOfUser, removeMessage } from "./controllers/message.controller.js";
+import { MESSAGE_RECEIVED } from "./constants/Events.js";
 
 
 

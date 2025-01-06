@@ -33,7 +33,6 @@ const registerUser = asyncHandler(async (req, res) => {
     if (existedUser) {
         throw new ApiError(400, "Username or Email already exists.")
     }
-    // create new user
 
     const user = await User.create({
         fullName,
@@ -41,14 +40,10 @@ const registerUser = asyncHandler(async (req, res) => {
         password,
         username: username.toLowerCase()
     })
-    console.log(user)
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
-
-    console.log(createdUser)
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while creating a user.")
     }
-    // send response to user
     res.status(201).json(new ApiResponse(200, createdUser, "User registered successfully"))
 
 })
