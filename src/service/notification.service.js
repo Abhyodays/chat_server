@@ -1,25 +1,30 @@
 import { NotificationToken } from "../models/notificationToken.model.js";
 import admin from 'firebase-admin';
 
-admin.initializeApp();
+const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
 
 const getNotificationToken = async (user) => {
     const result = await NotificationToken.findOne({ user });
     if (!result) {
         return;
     }
-    return result;
+    return result.token;
 }
-const sendNotification = async (user, message) => {
+const sendNotification = async (user, data) => {
     const token = await getNotificationToken(user);
     if (!token) {
         console.log("No token found for user:", user)
         return;
     }
-    await admin.messaging().send({
-        token,
-        data: { message }
-    });
+    const message = {
+        data,
+        token
+    };
+    await admin.messaging().send(message);
 }
 
 
