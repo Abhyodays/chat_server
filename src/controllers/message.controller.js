@@ -25,7 +25,7 @@ const removeMessage = async (message) => {
     try {
         const result = await Message.findOneAndDelete({ id: message.id });
         if (!result) {
-            throw new Error("Message not found to remove");
+            return;
         }
     } catch (error) {
         console.log(`Error :: removeMessage :: ${error}`)
