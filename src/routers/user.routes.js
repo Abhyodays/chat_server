@@ -10,6 +10,7 @@ router.route('/refresh-token').post(refreshAccessToken);
 
 router.route('/all').get(getUsers);
 router.route('/find').get(getUserDetails)
+
 //secure routes
 router.route('/logout').post(verifyUser, logoutUser);
 

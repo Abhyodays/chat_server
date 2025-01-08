@@ -36,6 +36,7 @@ io.on('connection', (socket) => {
         if (users.has(receiver)) {
             socket.to(users.get(receiver)).emit("message received", data)
         } else {
+            sendNotification(data.receiver, data);
             addMessage({ ...data, status: "sent" });
             socket.emit("error", { message: "Receiver not connected" })
         }
@@ -67,10 +68,13 @@ app.get('', (req, res) => {
 import userRouter from './routers/user.routes.js';
 import { addMessage, getAllMessageOfUser, removeMessage } from "./controllers/message.controller.js";
 import { MESSAGE_RECEIVED } from "./constants/Events.js";
+import notificationRouter from './routers/notification.routes.js'
+import { sendNotification } from "./service/notification.service.js";
 
 
 
 //routes declaration
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/notification", notificationRouter)
 
 export { httpServer };
