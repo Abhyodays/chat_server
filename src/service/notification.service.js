@@ -24,6 +24,7 @@ const sendNotification = async (user, data) => {
         data,
         token
     };
+    console.log(`sending message to ${user}`)
     await admin.messaging().send(message);
 }
 

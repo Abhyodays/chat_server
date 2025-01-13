@@ -36,10 +36,11 @@ io.on('connection', (socket) => {
         if (users.has(receiver)) {
             socket.to(users.get(receiver)).emit("message received", data)
         } else {
-            sendNotification(data.receiver, data);
             addMessage({ ...data, status: "sent" });
             socket.emit("error", { message: "Receiver not connected" })
         }
+
+        sendNotification(data.receiver, data);
     });
     socket.on(MESSAGE_RECEIVED, (data) => {
         removeMessage(data);
