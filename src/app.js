@@ -4,6 +4,7 @@ import { chats } from './data/data.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { Server } from "socket.io";
+import { sendTestMessage } from './service/notification.service.js'
 
 const app = express();
 
@@ -31,7 +32,7 @@ io.on('connection', (socket) => {
             })
         }
     })
-    socket.on("send message", (data) => {
+    socket.on("send message", async (data) => {
         const { receiver } = data;
         if (users.has(receiver)) {
             socket.to(users.get(receiver)).emit("message received", data)
@@ -40,7 +41,12 @@ io.on('connection', (socket) => {
             socket.emit("error", { message: "Receiver not connected" })
         }
 
-        sendNotification(data.receiver, data);
+        try {
+            const response = await sendNotification(data.receiver, data);
+            console.log("notification response:", response);
+        } catch (error) {
+            console.log("Error :: send_message :: ", error);
+        }
     });
     socket.on(MESSAGE_RECEIVED, (data) => {
         removeMessage(data);
@@ -63,6 +69,15 @@ io.on('connection', (socket) => {
 
 app.get('', (req, res) => {
     res.send(chats)
+})
+
+app.post('/test_notification', async (req, res) => {
+    const response = await sendTestMessage();
+    if (response) {
+        res.status(200).json({ message: "Success in notification" })
+    }
+    res.status(500).json({ message: "Failed in notification" });
+
 })
 
 //routes imports
